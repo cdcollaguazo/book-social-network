@@ -109,8 +109,8 @@ jobs:
       - name: Build & Push api image to DockerHub
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: Dockerfile
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/bsn-api:${{ needs.prepare.outputs.tag-version }}, ${{ secrets.DOCKERHUB_USERNAME }}/bsn-api:latest
