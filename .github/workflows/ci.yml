@@ -80,8 +80,8 @@ jobs:
           PLATFORM_NAME: example
           MIGRATION_IMAGE: example/migration:latest
           API_IMAGE: example/api:latest
-          BSN_DDL_USER: dummy
-          BSN_DML_USER: dummy
+          API_DDL_USER: dummy
+          API_DML_USER: dummy
           JWT_ISSUER_URI: https://www.example.com/realms/example}
         run: |
           cd infra

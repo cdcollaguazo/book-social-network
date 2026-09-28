@@ -9,8 +9,8 @@ public class ConfigLoader {
                 required("PLATFORM_NAME"),
                 required("MIGRATION_IMAGE"),
                 required("API_IMAGE"),
-                required("BSN_DDL_USER"),
-                required("BSN_DML_USER"),
+                required("API_DDL_USER"),
+                required("API_DML_USER"),
                 required("JWT_ISSUER_URI")
                 );
     }
