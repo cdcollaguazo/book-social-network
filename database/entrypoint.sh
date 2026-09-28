@@ -19,7 +19,7 @@ else
     -v API_DDL_PASSWORD="$API_DDL_PASSWORD" \
     -v API_DML_USER="$API_DML_USER" \
     -v API_DML_PASSWORD="$API_DML_PASSWORD" \
-    -f /init/book_social_network/bootstrap.sql
+    -f /init/bootstrap.sql
   echo "book_social_network bootstrap completed!"
 
   export PGPASSWORD="$API_DDL_PASSWORD"
@@ -28,7 +28,7 @@ else
   psql -h "$HOST" -U "$API_DDL_USER" -d book_social_network \
     -v API_DDL_USER="$API_DDL_USER" \
     -v API_DML_USER="$API_DML_USER" \
-    -f /init/book_social_network/privileges.sql
+    -f /init/privileges.sql
   echo "Privileges initialized for book_social_network!"
 fi
 
