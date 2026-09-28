@@ -5,7 +5,7 @@
     },
     "keycloak": {
       "url": "http://localhost:9090",
-      "realm": "book-social-network",
+      "realm": "local",
       "clientId": "bsn"
     }
   }

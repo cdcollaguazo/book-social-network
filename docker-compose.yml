@@ -1,82 +1,26 @@
 # Local docker-compose.yml file
 
 services:
-  bsn-api-db:
-    container_name: bsn-api-db
+  db:
     image: postgres:18.0
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: book_social_network
     volumes:
-      - bsn-api-data:/var/lib/postgresql/18/docker
+      - db-data:/var/lib/postgresql/18/docker
     ports:
       - 5432:5432
     healthcheck:
       test: [ "CMD", "pg_isready" ]
     networks:
-      - bsn-network
+      - bsn
     restart: unless-stopped
-
-  bsn-keycloak-db:
-    container_name: bsn-keycloak-db
-    image: postgres:18.0
-    environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev
-      POSTGRES_DB: keycloak
-    volumes:
-      - bsn-keycloak-data:/var/lib/postgresql/18/docker
-    ports:
-      - 5433:5432
-    healthcheck:
-      test: [ "CMD", "pg_isready" ]
-    networks:
-      - bsn-network
-    restart: unless-stopped
-
-  bsn-mail:
-    container_name: bsn-mail
-    image: maildev/maildev
-    ports:
-      - 1080:1080
-      - 1025:1025
-    networks:
-      - bsn-network
-    restart: unless-stopped
-
-  bsn-keycloak:
-    container_name: bsn-keycloak
-    build:
-      context: ./platform/iam
-      dockerfile: Dockerfile
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: dev
-      KC_BOOTSTRAP_ADMIN_PASSWORD: dev
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://bsn-keycloak-db:5432/keycloak
-      KC_DB_USERNAME: dev
-      KC_DB_PASSWORD: dev
-      BSN_USERS_API_URL: http://host.docker.internal:8080/api/v1/users
-      FRONTEND_URL: http://localhost:4200
-    command:
-      - "start-dev"
-      - "--import-realm"
-    ports:
-      - 9090:8080
-    networks:
-      - bsn-network
-    restart: unless-stopped
-    depends_on:
-      bsn-keycloak-db:
-        condition: service_healthy
 
 volumes:
-  bsn-api-data:
-    driver: local
-  bsn-keycloak-data:
+  db-data:
     driver: local
 
 networks:
-  bsn-network:
+  bsn:
     driver: bridge

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test-api:
+    runs-on: ubuntu-24.04
+    name: Test api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Run unit tests
+        run: |
+          cd apps/api
+          mvn -B verify
+
+  build-api:
+    runs-on: ubuntu-24.04
+    name: Build api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build image
+        run: |
+          cd apps/api
+          docker build .
+
+  test-infra:
+    runs-on: ubuntu-24.04
+    name: Test infra
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Run unit tests
+        run: |
+          cd infra
+          mvn -B verify
+
+  build-infra:
+    runs-on: ubuntu-24.04
+    name: Build infra
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Package application
+        run: |
+          cd infra
+          mvn clean package
+
+      - name: Synth CloudFormation templates
+        env:
+          PLATFORM_NAME: example
+          MIGRATION_IMAGE: example/migration:latest
+          API_IMAGE: example/api:latest
+          BSN_DDL_USER: dummy
+          BSN_DML_USER: dummy
+          JWT_ISSUER_URI: https://www.example.com/realms/example}
+        run: |
+          cd infra
+          java -jar target/infra-1.0-SNAPSHOT.jar
+
+  build-web:
+    runs-on: ubuntu-24.04
+    name: Build web
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install Node dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Build application
+        run: |
+          cd apps/web
+          npm run build

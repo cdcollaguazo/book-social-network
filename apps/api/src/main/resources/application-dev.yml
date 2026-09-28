@@ -6,12 +6,3 @@ spring:
     user: dev
     password: dev
     locations: classpath:migrations
-  mail:
-    host: localhost
-    port: 1025
-    protocol: smtp
-    properties:
-      mail:
-        connectiontimeout: 3000
-        timeout: 3000
-        writetimeout: 3000

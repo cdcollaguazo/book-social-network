@@ -6,7 +6,7 @@ COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src ./src
 # We already know the app has run the tests correctly
-RUN mvn clean package -DskipTests -Pcloud
+RUN mvn clean package -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine AS runtime
@@ -16,4 +16,4 @@ COPY --from=build ./build/target/api-*.jar ./api.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=cloud", "api.jar"]
+ENTRYPOINT ["java", "-jar", "api.jar"]
