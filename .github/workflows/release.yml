@@ -51,7 +51,7 @@ jobs:
 
       - name: Synth CloudFormation templates
         env:
-          PLATFORM_NAME: ${{ secrets.PLATFORM_NAME }}
+          PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
           MIGRATION_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/bsn-migration:${{ needs.prepare.outputs.tag-version }}
           API_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/bsn-api:${{ needs.prepare.outputs.tag-version }}
           API_DDL_USER: ${{ secrets.API_DDL_USER }}
@@ -115,10 +115,40 @@ jobs:
           platforms: linux/amd64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/bsn-api:${{ needs.prepare.outputs.tag-version }}, ${{ secrets.DOCKERHUB_USERNAME }}/bsn-api:latest
 
+  build-web:
+    runs-on: ubuntu-24.04
+    name: Build web
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install Node dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Build application
+        run: |
+          cd apps/web
+          npm run build -- --base-href /bsn/
+
+      - name: Upload web app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-app-dist
+          path: apps/web/dist
+
   deploy:
     name: Deploy
     runs-on: ubuntu-24.04
-    needs: [build-infra, build-migration, build-api]
+    needs: [build-infra, build-migration, build-api, build-web]
     environment: Prod
     steps:
       - name: Checkout code
@@ -129,6 +159,12 @@ jobs:
         with:
           name: cdk-out
           path: infra/cdk.out
+
+      - name: Download web app artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: web-app-dist
+          path: apps/web/dist
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.0.0
@@ -211,3 +247,31 @@ jobs:
             --stack-name BsnService \
             --template-file infra/cdk.out/BsnService.template.json \
             --capabilities CAPABILITY_IAM
+
+      - name: Upload web app assets to S3
+        env:
+          PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
+        run: |
+          set -eu
+
+          S3_BUCKET_NAME=$(aws ssm get-parameter \
+            --name "/${PLATFORM_NAME}/s3/bucket-name" \
+            --query "Parameter.Value" \
+            --output text)
+
+          aws s3 sync apps/web/dist/web/browser s3://$S3_BUCKET_NAME/bsn --delete
+
+      - name: Invalidate CloudFront distribution
+        env:
+          PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
+        run: |
+          set -eu
+
+          CF_DISTRIBUTION_ID=$(aws ssm get-parameter \
+            --name "/${PLATFORM_NAME}/cf/distribution-id" \
+            --query "Parameter.Value" \
+            --output text)
+
+          aws cloudfront create-invalidation \
+            --distribution-id $CF_DISTRIBUTION_ID \
+            --paths "/bsn" "/bsn/*"
