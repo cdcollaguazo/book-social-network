@@ -66,10 +66,11 @@ bsn/
 ### Requirements
 
 - Java 21
-- Node.js
+- Maven
+- Node 22
 - Docker
 
-Start the local dependencies:
+Start the local dependencies (database):
 
 ```
 docker compose up -d
@@ -79,7 +80,9 @@ Run the backend:
 
 ```
 cd apps/api
-./mvnw spring-boot:run
+mvn spring-boot:run \
+  -Dspring-boot.run.profiles=dev \
+  -Dspring-boot.run.additional-classpath-elements=../../database
 ```
 
 Run the frontend:
