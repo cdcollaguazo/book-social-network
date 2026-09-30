@@ -59,7 +59,7 @@ public class ApiConstruct extends Construct {
                 .volumes(List.of(bsnVolume))
                 .build();
 
-        String jdbcUrl = "jdbc:postgresql://" + props.rdsHost() + ":" + props.rdsPort() + "/keycloak";
+        String jdbcUrl = "jdbc:postgresql://" + props.rdsHost() + ":" + props.rdsPort() + "/book_social_network";
 
         // Container
         ContainerDefinition apiContainer = taskDefinition.addContainer("Container", ContainerDefinitionOptions.builder()

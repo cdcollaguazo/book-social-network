@@ -6,7 +6,7 @@ COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src ./src
 # We already know the app has run the tests correctly
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Pcloud
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine AS runtime

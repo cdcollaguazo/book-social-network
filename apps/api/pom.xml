@@ -79,6 +79,9 @@
 				</dependency>
 			</dependencies>
 		</profile>
+        <profile>
+            <id>cloud</id>
+        </profile>
 	</profiles>
 
 	<build>
