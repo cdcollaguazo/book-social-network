@@ -9,6 +9,9 @@ import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.ecs.Cluster;
 import software.amazon.awscdk.services.ecs.ClusterAttributes;
 import software.amazon.awscdk.services.ecs.ICluster;
+import software.amazon.awscdk.services.efs.FileSystem;
+import software.amazon.awscdk.services.efs.FileSystemAttributes;
+import software.amazon.awscdk.services.efs.IFileSystem;
 import software.amazon.awscdk.services.elasticloadbalancingv2.ApplicationListener;
 import software.amazon.awscdk.services.elasticloadbalancingv2.ApplicationListenerAttributes;
 import software.amazon.awscdk.services.elasticloadbalancingv2.IApplicationListener;
@@ -47,6 +50,9 @@ public class BsnServiceStack extends Stack {
         String albSgId = getValueForParameter("vpc", "alb-sg-id");
         ISecurityGroup albSg = SecurityGroup.fromSecurityGroupId(this, "AlbSg", albSgId);
 
+        String efsSgId = getValueForParameter("vpc", "efs-sg-id");
+        ISecurityGroup efsSg = SecurityGroup.fromSecurityGroupId(this, "EfsSg", efsSgId);
+
         String ecsClusterArn = getValueForParameter("ecs", "cluster-arn");
         String ecsClusterName = getValueForParameter("ecs", "cluster-name");
         ICluster ecsCluster = Cluster.fromClusterAttributes(this, "EcsCluster", ClusterAttributes.builder()
@@ -66,8 +72,15 @@ public class BsnServiceStack extends Stack {
 
         String efsId = getValueForParameter("efs", "file-system-id");
 
+        IFileSystem efs = FileSystem.fromFileSystemAttributes(this, "Efs",
+                FileSystemAttributes.builder()
+                        .fileSystemId(efsId)
+                        .securityGroup(efsSg)
+                        .build()
+        );
+
         ApiConstructProps apiConstructProps = new ApiConstructProps(vpc, ecsSg, ecsCluster, albListener, apiDmlSecret,
-                efsId, rdsHost, rdsPort);
+                efs, rdsHost, rdsPort);
 
         new ApiConstruct(this, "Api", apiConstructProps, config);
     }

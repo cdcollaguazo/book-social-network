@@ -3,6 +3,7 @@ package com.cdcollaguazo.bsn.infra.construct;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.IVpc;
 import software.amazon.awscdk.services.ecs.ICluster;
+import software.amazon.awscdk.services.efs.IFileSystem;
 import software.amazon.awscdk.services.elasticloadbalancingv2.IApplicationListener;
 import software.amazon.awscdk.services.secretsmanager.ISecret;
 
@@ -12,7 +13,7 @@ public record ApiConstructProps(
         ICluster ecsCluster,
         IApplicationListener albListener,
         ISecret apiDmlSecret,
-        String efsId,
+        IFileSystem efs,
         String rdsHost,
         String rdsPort
 ) {
