@@ -5,6 +5,9 @@ import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ec2.SubnetType;
 import software.amazon.awscdk.services.ecs.*;
+import software.amazon.awscdk.services.efs.AccessPoint;
+import software.amazon.awscdk.services.efs.Acl;
+import software.amazon.awscdk.services.efs.PosixUser;
 import software.amazon.awscdk.services.elasticloadbalancingv2.*;
 import software.amazon.awscdk.services.elasticloadbalancingv2.HealthCheck;
 import software.amazon.awscdk.services.logs.RetentionDays;
@@ -20,12 +23,30 @@ public class ApiConstruct extends Construct {
     public ApiConstruct(Construct scope, String id, ApiConstructProps props, Config config) {
         super(scope, id);
 
+        // EFS Access Point
+        AccessPoint efsAccessPoint = AccessPoint.Builder.create(this, "EfsAccessPoint")
+                .fileSystem(props.efs())
+                .path("/bsn/images")
+                .createAcl(Acl.builder()
+                        .ownerUid("1000")
+                        .ownerGid("1000")
+                        .permissions("755")
+                        .build())
+                .posixUser(PosixUser.builder()
+                        .uid("1000")
+                        .gid("1000")
+                        .build())
+                .build();
+
         // Volume
         Volume bsnVolume = Volume.builder()
                 .name("bsn-api")
                 .efsVolumeConfiguration(EfsVolumeConfiguration.builder()
-                        .fileSystemId(props.efsId())
-                        .rootDirectory("/bsn")
+                        .fileSystemId(props.efs().getFileSystemId())
+                        .authorizationConfig(AuthorizationConfig.builder()
+                                .accessPointId(efsAccessPoint.getAccessPointId())
+                                .build())
+                        .rootDirectory("/")
                         .build())
                 .build();
 
