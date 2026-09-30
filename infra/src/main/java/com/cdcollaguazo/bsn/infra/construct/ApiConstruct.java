@@ -43,6 +43,7 @@ public class ApiConstruct extends Construct {
                 .name("bsn-api")
                 .efsVolumeConfiguration(EfsVolumeConfiguration.builder()
                         .fileSystemId(props.efs().getFileSystemId())
+                        .transitEncryption("ENABLED")
                         .authorizationConfig(AuthorizationConfig.builder()
                                 .accessPointId(efsAccessPoint.getAccessPointId())
                                 .build())
