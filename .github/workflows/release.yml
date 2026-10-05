@@ -118,6 +118,7 @@ jobs:
   build-web:
     runs-on: ubuntu-24.04
     name: Build web
+    environment: Prod
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -135,8 +136,14 @@ jobs:
           npm ci
 
       - name: Build application
+        env:
+          API_URL: ${{ vars.API_URL }}
+          KEYCLOAK_URL: ${{ vars.KEYCLOAK_URL }}
+          KEYCLOAK_REALM: ${{ vars.KEYCLOAK_REALM }}
+          KEYCLOAK_CLIENT: ${{ vars.KEYCLOAK_CLIENT }}
         run: |
           cd apps/web
+          envsubst < config/environment-cloud.json > src/assets/environment.json
           npm run build -- --base-href /bsn/
 
       - name: Upload web app artifact

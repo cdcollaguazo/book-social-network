@@ -8,7 +8,7 @@ export class Environment {
   private config: any;
 
   async loadConfig() {
-    return fetch('/assets/environment.json')
+    return fetch('assets/environment.json')
       .then(res => res.json())
       .then(json => {
         this.config = json;
