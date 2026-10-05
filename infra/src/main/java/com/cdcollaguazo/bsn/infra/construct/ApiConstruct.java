@@ -43,6 +43,7 @@ public class ApiConstruct extends Construct {
                 .name("bsn-api")
                 .efsVolumeConfiguration(EfsVolumeConfiguration.builder()
                         .fileSystemId(props.efs().getFileSystemId())
+                        .transitEncryption("ENABLED")
                         .authorizationConfig(AuthorizationConfig.builder()
                                 .accessPointId(efsAccessPoint.getAccessPointId())
                                 .build())
@@ -58,7 +59,7 @@ public class ApiConstruct extends Construct {
                 .volumes(List.of(bsnVolume))
                 .build();
 
-        String jdbcUrl = "jdbc:postgresql://" + props.rdsHost() + ":" + props.rdsPort() + "/keycloak";
+        String jdbcUrl = "jdbc:postgresql://" + props.rdsHost() + ":" + props.rdsPort() + "/book_social_network";
 
         // Container
         ContainerDefinition apiContainer = taskDefinition.addContainer("Container", ContainerDefinitionOptions.builder()
