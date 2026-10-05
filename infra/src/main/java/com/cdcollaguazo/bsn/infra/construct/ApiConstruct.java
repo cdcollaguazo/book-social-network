@@ -74,6 +74,7 @@ public class ApiConstruct extends Construct {
                 ))
                 .environment(
                         Map.of(
+                                "CONTEXT_PATH", "/" + CONTEXT,
                                 "DB_URL", jdbcUrl,
                                 "JWT_ISSUER_URI", config.jwtIssuerUri(),
                                 "JPA_DDL_AUTO", "validate"
