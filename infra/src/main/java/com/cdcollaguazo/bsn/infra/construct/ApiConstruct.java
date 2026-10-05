@@ -131,7 +131,7 @@ public class ApiConstruct extends Construct {
                 .healthCheck(HealthCheck.builder()
                         .protocol(software.amazon.awscdk.services.elasticloadbalancingv2.Protocol.HTTP)
                         .port("8080")
-                        .path("/api/v1/ping")
+                        .path("/" + CONTEXT + "/api/v1/ping")
                         .healthyThresholdCount(3)
                         .unhealthyThresholdCount(2)
                         .timeout(Duration.seconds(25))
